@@ -16,9 +16,7 @@ from modelWork import saveModel
 model = AlternatingLeastSquares(
     factors=128, 
     regularization=0.05, 
-    iterations = 400, 
-    num_threads = 0, 
-    use_gpu = False
+    iterations = 400,
 )
 
 #model = AlternatingLeastSquares(factors=64, regularization=0.05, iterations = 200, num_threads = 4)
@@ -192,9 +190,11 @@ def get_connected_products(product):
 def searchProducts(name):
     searched = []
     for x in products:
-        if fuzz.token_sort_ratio(name, x["name"])>60:
-            searched.append(x["name"] + ";" + str(x["cost"]) + ";" + x["merchantName"])
-    return searched
+        procent = fuzz.token_sort_ratio(name, x["name"])
+        if procent>60:
+            searched.append((procent,x))
+    searched = sorted(searched, key = lambda x: -x[0])
+    return json.dumps(searched, ensure_ascii=False)
 
 def merchantProduct(user_id, name):
     user_id = int(user_id)
@@ -227,8 +227,8 @@ def merchantProduct(user_id, name):
 def start():
     global users, products, merchants, matrix, data_matrix, model
     users, products, merchants = load_data()
-    matrix = construct_matrix()
-    data_matrix = transform_matrix_to_csr_matrix()
+    # matrix = construct_matrix()
+    # data_matrix = transform_matrix_to_csr_matrix()
 
 
 #with_this_products()
@@ -248,7 +248,7 @@ def start():
 start()
 model = modelWork.loadModel("model_0")
 
-
-fp = open('211.txt', 'w')
-fp.write(merchantProduct(635, "Магнит"))
-fp.close()
+print(searchProducts("Пева"))
+# fp = open('211.txt', 'w')
+# fp.write(merchantProduct(635, "Магнит"))
+# fp.close()
