@@ -234,8 +234,8 @@ def merchantProduct(user_id, name):
 def start():
     global users, products, merchants, matrix, data_matrix, model
     users, products, merchants = load_data()
-    # matrix = construct_matrix()
-    # data_matrix = transform_matrix_to_csr_matrix()
+    matrix = construct_matrix()
+    data_matrix = transform_matrix_to_csr_matrix()
 
 
 #with_this_products()
@@ -257,15 +257,15 @@ def start():
 # fp = open('211.txt', 'w')
 # fp.write(merchantProduct(635, "Магнит"))
 # fp.close()
-start()
+# start()
 
-print(searchProducts("Стол"))
-print(searchProducts("Пива"))
-print(searchProducts("ОВС"))
-print(searchProducts("Гроб"))
-print(searchProducts("Картоха"))
-print(searchProducts("Сухо"))
-print(searchProducts("С"))
+# print(searchProducts("Стол"))
+# print(searchProducts("Пива"))
+# print(searchProducts("ОВС"))
+# print(searchProducts("Гроб"))
+# print(searchProducts("Картоха"))
+# print(searchProducts("Сухо"))
+# print(searchProducts("С"))
 
 #model = AlternatingLeastSquares(factors=64, regularization=0.05, iterations = 200, num_threads = 4)
 #model.fit(2*data_matrix)
