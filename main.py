@@ -81,9 +81,3 @@ data_matrix = transform_matrix_to_csr_matrix()
 model.fit(2 * data_matrix)
 
 #print(recomend_to_user(2217))
-
-#0.033203016505148696
-#0.021833127570705112
-#0.021983666957240824
-#0.10230769231564321
-
