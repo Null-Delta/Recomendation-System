@@ -9,6 +9,8 @@ import numpy as np
 from scipy.sparse import csr_matrix
 from implicit.als import AlternatingLeastSquares
 import sys
+from modelWork import loadModel
+from modelWork import saveModel
 
 model = AlternatingLeastSquares(
     factors=512, 
@@ -187,10 +189,14 @@ def searchProducts(name):
     searched = []
     for x in products:
         procent = fuzz.token_sort_ratio(name, x["name"])
-        if procent>60:
+        if procent>40:
             searched.append((procent,x))
     searched = sorted(searched, key = lambda x: -x[0])
-    return json.dumps(searched, ensure_ascii=False)
+    rezult = []
+    for x in searched:
+        rezult.append(x[1])
+    
+    return json.dumps(rezult, ensure_ascii=False)
 
 def merchantProduct(user_id, name):
     user_id = int(user_id)
