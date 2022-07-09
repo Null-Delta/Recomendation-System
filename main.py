@@ -2,12 +2,14 @@ from array import array
 from collections import defaultdict
 from itertools import count
 import json
-
+from math import prod
+from fuzzywuzzy import fuzz
+import modelWork
 import numpy as np
 from scipy.sparse import csr_matrix
 from implicit.als import AlternatingLeastSquares
 import sys
-
+import codecs
 from modelWork import loadModel
 from modelWork import saveModel
 
@@ -101,15 +103,24 @@ def similar_items(item):
     return json.dumps(similar_products)
 
 def similar_users(user):
+    user = int(user)
     userIndex = list_func_index(users, lambda it: it["userId"] == user)
     ids, recScores = model.similar_users(userIndex, N=30)
 
-    similar_products = []
+    similar_users = []
 
     for id in ids:
-        similar_products.append(products[id])
+        similar_users.append(users[id])
 
-    return json.dumps(similar_products)
+    cnt = defaultdict(int)
+    for x in similar_users:
+        for y in x["checks"]:
+            for z in y:
+                cnt[z] +=1
+    tmp = cnt.keys()
+    indexTopList = sorted(list(tmp), key = lambda x: -cnt[x])
+
+    return json.dumps(indexTopList[:30])
 
 def recomend_to_user_with_merchants(user_id):
     userIndex = list_func_index(users, lambda us: us["userId"] == user_id)
@@ -175,15 +186,53 @@ def get_connected_products(product):
 
     return json.dumps(result)
 
+def searchProducts(name):
+    searched = []
+    for x in products:
+        procent = fuzz.token_sort_ratio(name, x["name"])
+        if procent>60:
+            searched.append((procent,x))
+    searched = sorted(searched, key = lambda x: -x[0])
+    return json.dumps(searched, ensure_ascii=False)
+
+def merchantProduct(user_id, name):
+    user_id = int(user_id)
+    userIndex = list_func_index(users, lambda us: us["userId"] == user_id)
+    items = data_matrix.tocsr()
+    ids, recScores = model.recommend(user_id, items[userIndex], N=len(products), filter_already_liked_items=False, recalculate_user=True)
+
+    merchantProducts = []
+    for x in merchants:
+        if name == x["merchantName"]:
+            for y in x["products"]:
+                params = y.split(";")
+                index = products.index(
+                    {
+                        "name": params[0],
+                        "cost": int(params[1]),
+                        "merchantName": params[2]
+                    }
+                )
+                merchantProducts.append(index)
+            break
+
+    recomended_products_in_merchant = []
+    for id in ids:
+        if (id in merchantProducts):
+            recomended_products_in_merchant.append(products[id])
+
+    return json.dumps(recomended_products_in_merchant, ensure_ascii=False)
+
 def start():
     global users, products, merchants, matrix, data_matrix, model
     users, products, merchants = load_data()
-    matrix = construct_matrix()
-    data_matrix = transform_matrix_to_csr_matrix()
+    # matrix = construct_matrix()
+    # data_matrix = transform_matrix_to_csr_matrix()
+
 
 #with_this_products()
 # fp = open('1.txt', 'w')
-# fp.write(json.dumps(recomend_to_user_with_merchants(2217)))
+# fp.write(json.dumps(ensure_ascii=False, recomend_to_user_with_merchants(2217)))
 # fp.close()
 
 # saveModel(model)
@@ -191,12 +240,14 @@ def start():
 
 # model = loadModel() 
 
-# fp = open('2.txt', 'w')
-# fp.write(json.dumps(recomend_to_user_with_merchants(2217)))
-# fp.close()
-
 #print(recomend_to_user_with_merchants(2217))
 
 #print(similar_items('Вино;899;Пятёрочка'))
 
+start()
+model = modelWork.loadModel("model_0")
 
+print(searchProducts("Пева"))
+# fp = open('211.txt', 'w')
+# fp.write(merchantProduct(635, "Магнит"))
+# fp.close()
