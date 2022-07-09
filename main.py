@@ -2,16 +2,13 @@ from array import array
 from collections import defaultdict
 from itertools import count
 import json
-from math import prod
 from fuzzywuzzy import fuzz
-from metrics import get_user2product_metrics
+from metrics import get_top_metrics, get_user2product_metrics, get_user2user_metrics
 import modelWork
 import numpy as np
 from scipy.sparse import csr_matrix
 from implicit.als import AlternatingLeastSquares
 import sys
-from modelWork import loadModel
-from modelWork import saveModel
 
 model = AlternatingLeastSquares(
     factors=512, 
@@ -164,7 +161,10 @@ def with_this_products():
                                     "merchantName": params[2]
                                 }
                             )
-                        mapCouple[str(index)] += int(1)                    
+                        if (products[productId]["merchantName"] != params[2]):
+                            mapCouple[str(index)] += int(1) 
+                        else:
+                            mapCouple[str(index)] += int(2)                  
         tmp = mapCouple.keys()
         indexTopList = sorted(list(tmp), key = lambda x: -mapCouple[x])
         matrixMapCouple.append(indexTopList[1:30])
@@ -250,10 +250,15 @@ def start():
 
 #start()
 #model = modelWork.loadModel("model_0")
-start()
-model = AlternatingLeastSquares(factors=64, regularization=0.05, iterations = 200, num_threads = 4)
-model.fit(2*data_matrix)
-get_user2product_metrics(users, products, model, data_matrix)
 # fp = open('211.txt', 'w')
 # fp.write(merchantProduct(635, "Магнит"))
 # fp.close()
+start()
+model = AlternatingLeastSquares(factors=64, regularization=0.05, iterations = 200, num_threads = 4)
+model.fit(2*data_matrix)
+#get_top_metrics(users, products) 
+#0.046095630991409724
+#get_user2product_metrics(users, products, model, data_matrix) 
+#0.061565854045994295
+#get_user2user_metrics(users, products, model)
+#0.07238609012584461

@@ -1,7 +1,12 @@
 from collections import defaultdict
-
 import numpy as np
+from scipy.sparse import csr_matrix
+from implicit.als import AlternatingLeastSquares
 
+def list_func_index(lst, func):
+    for i in range(len(lst)):
+        if func(lst[i]):
+            return i
 
 def average_precision(actual, recommended, k=30):
     ap_sum = 0
@@ -56,7 +61,6 @@ def get_top_metrics(users, products):
         metr = normalized_average_precision(testing, indexTopList[:30])
         scores.append(metr)
     print(np.mean(scores))
-    #0.04157494615140849
 
 def get_user2product_metrics(users,products,model,finalMatrix):
     def list_func_index(lst, func):
@@ -85,7 +89,50 @@ def get_user2product_metrics(users,products,model,finalMatrix):
         scores.append(metr)
 
     print(np.mean(scores))
-    #0.10230769231564321
+
+def get_user2user_metrics(users,products,model):
+    scores = []
+    for x in users:
+        user = int(x["userId"])
+        userIndex = list_func_index(users, lambda it: it["userId"] == user)
+        ids, recScores = model.similar_users(userIndex, N=30)
+
+        similar_users = []
+
+        for id in ids[1:]:
+            similar_users.append(users[id])
+
+        cnt = defaultdict(int)
+        for x in similar_users:
+            for y in x["checks"]:
+                for z in y:
+                    params = z.split(";")
+                    index = products.index(
+                        {
+                            "name": params[0],
+                            "cost": int(params[1]),
+                            "merchantName": params[2]
+                        }
+                    )
+                    cnt[index] +=1
+        tmp = cnt.keys()
+        indexTopList = sorted(list(tmp), key = lambda x: -cnt[x])
 
 
-# 
+        testing = []
+        for y in range(10):
+            for z in x['checks'][-y]:
+                params = z.split(";")
+                index = products.index(
+                    {
+                        "name": params[0],
+                        "cost": int(params[1]),
+                        "merchantName": params[2]
+                    }
+                )
+                testing.append(index)
+        metr = normalized_average_precision(testing, indexTopList)
+        scores.append(metr)
+
+    print(np.mean(scores))
+
