@@ -96,7 +96,6 @@ def similar_items(item):
 
     return json.dumps(similar_products)
 
-users, products = load_data()
 def recomend_to_user_with_merchants(user_id):
     userIndex = list_func_index(users, lambda us: us["userId"] == user_id)
     items = data_matrix.tocsr()
