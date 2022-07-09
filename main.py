@@ -4,6 +4,7 @@ from itertools import count
 import json
 from math import prod
 from fuzzywuzzy import fuzz
+from metrics import get_user2product_metrics
 import modelWork
 import numpy as np
 from scipy.sparse import csr_matrix
@@ -46,7 +47,7 @@ def construct_matrix():
         for subIndex in range(0,len(products)):
             matrix[index].append(0)
     for userIndex in range(0, len(users)):
-        for checkIndex in range(0, len(users[userIndex]["checks"])):
+        for checkIndex in range(0, len(users[userIndex]["checks"])-10):
             for productIndex in range(0, len(users[userIndex]["checks"][checkIndex])):
                 params = users[userIndex]["checks"][checkIndex][productIndex].split(";")
                 index = products.index(
@@ -249,8 +250,10 @@ def start():
 
 #start()
 #model = modelWork.loadModel("model_0")
-
-#print(searchProducts("Пева"))
+start()
+model = AlternatingLeastSquares(factors=64, regularization=0.05, iterations = 200, num_threads = 4)
+model.fit(2*data_matrix)
+get_user2product_metrics(users, products, model, data_matrix)
 # fp = open('211.txt', 'w')
 # fp.write(merchantProduct(635, "Магнит"))
 # fp.close()
