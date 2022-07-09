@@ -14,6 +14,7 @@ model = AlternatingLeastSquares(factors=64, regularization=0.05, iterations = 20
 data_matrix = csr_matrix((0, 0), dtype=np.int8)
 users = []
 products = []
+merchants = []
 
 def load_data():
     sys.path.append("../")
@@ -22,7 +23,9 @@ def load_data():
         users: list = json.load(read_file)
     with open("data/products.json", "r") as read_file:
         products: list = json.load(read_file)
-    return users, products
+    with open("data/merchants.json", "r") as read_file:
+        merchants: list = json.load(read_file)
+    return users, products, merchants
 
 def construct_matrix():
     matrix = []
@@ -75,9 +78,39 @@ def recomend_to_user(user_id):
 
     return json.dumps(recomended_products)
 
-users, products = load_data()
+def recomend_to_user_with_merchants(user_id):
+    userIndex = list_func_index(users, lambda us: us["userId"] == user_id)
+    items = data_matrix.tocsr()
+    ids, recScores = model.recommend(user_id, items[userIndex], N=60, filter_already_liked_items=False, recalculate_user=True)
+
+    listToSort = []
+    for id in range(len(ids)):
+        koef = 0
+        for x in merchants:
+            if (x["merchantName"] == products[ids[id]]['merchantName']):
+                koef = x["koef"]
+                break
+        listToSort.append( (recScores[id]*koef, ids[id]) )
+
+    idsScores = sorted(listToSort, reverse = True)
+
+    recomended_products = []
+
+    for id in range(len(idsScores)//2):
+        recomended_products.append(products[idsScores[id][1]])
+
+    return json.dumps(recomended_products)
+
+users, products, merchants = load_data()
 matrix = construct_matrix()
 data_matrix = transform_matrix_to_csr_matrix()
 model.fit(2 * data_matrix)
 
-#print(recomend_to_user(2217))
+#print(recomend_to_user_with_merchants(2217))
+
+fp = open('1.json', 'w')
+fp.write(recomend_to_user(2217))
+fp.close()
+fp = open('2.json', 'w')
+fp.write(recomend_to_user_with_merchants(2217))
+fp.close()
