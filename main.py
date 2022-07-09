@@ -8,8 +8,15 @@ from scipy.sparse import csr_matrix
 from implicit.als import AlternatingLeastSquares
 import sys
 
-#model = AlternatingLeastSquares(factors=128, regularization=0.05, iterations = 200, num_threads = 4)
-model = AlternatingLeastSquares(factors=64, regularization=0.05, iterations = 200, num_threads = 4)
+model = AlternatingLeastSquares(
+    factors=128, 
+    regularization=0.05, 
+    iterations = 400, 
+    num_threads = 0, 
+    use_gpu = False
+)
+
+#model = AlternatingLeastSquares(factors=64, regularization=0.05, iterations = 200, num_threads = 4)
 
 data_matrix = csr_matrix((0, 0), dtype=np.int8)
 users = []
@@ -75,10 +82,23 @@ def recomend_to_user(user_id):
 
     return json.dumps(recomended_products)
 
+def similar_items(item):
+    itemIndex = list_func_index(products, lambda it: (it["name"] + ";" + str(it["cost"]) + ";" + it["merchantName"]) == item)
+    ids, recScores = model.similar_items(itemIndex, N=30)
+
+    similar_products = []
+
+    for id in ids:
+        similar_products.append(products[id])
+
+    return json.dumps(similar_products)
+
 users, products = load_data()
 matrix = construct_matrix()
 data_matrix = transform_matrix_to_csr_matrix()
 model.fit(2 * data_matrix)
+
+#print(similar_items("Творог;40;Пятёрочка"))
 
 #print(recomend_to_user(2217))
 
