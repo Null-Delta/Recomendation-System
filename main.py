@@ -51,14 +51,13 @@ for col in range (0,len(users)):
             rows.append(row)
             data.append(matrix[col][row])
 
-finalMatrix = csr_matrix((data, (columns, rows)), shape=(len(users), len(products)))
+finalMatrix = csr_matrix((data, (columns, rows)), shape=(len(users), len(products))).tocsr()
 #print(finalMatrix)
 
-#finalMatrix = bm25_weight(finalMatrix, K1=100, B=0.8)
-model = AlternatingLeastSquares(factors=64, regularization=0.05)
-model.fit(finalMatrix)
+model = AlternatingLeastSquares(factors=128, regularization=0.05, iterations = 800, num_threads = 4)
+model.fit(2 * finalMatrix)
 
-#print(finalMatrix[userid])
+print(finalMatrix.shape)
 #print(ids)
 #print(scores)
 cnt = defaultdict(int)
@@ -86,7 +85,7 @@ for x in indexTopList:
 # scores = []
 # for x in users:
 #     testing = []
-#     for y in range(3):
+#     for y in range(10):
 #         for z in x['checks'][-y]:
 #             params = z.split(";")
 #             index = products.index(
@@ -100,14 +99,22 @@ for x in indexTopList:
 #     metr = normalized_average_precision(testing, indexTopList[:30])
 #     scores.append(metr)
 # print(np.mean(scores))
+
 #0.04157494615140849
 
 #recomended
+def list_func_index(lst, func):
+    for i in range(len(lst)):
+        if func(lst[i]):
+          return i
+
+items = finalMatrix.tocsr()
 scores = []
 for x in users:
-    ids, recScores = model.recommend(x['userId'], finalMatrix[x['userId']], N=30, filter_already_liked_items=False)
+    userIndex = list_func_index(users, lambda us: us["userId"] == x["userId"])
+    ids, recScores = model.recommend(x['userId'], items[userIndex], N=30, filter_already_liked_items=False, recalculate_user=True)
     testing = []
-    for y in range(3):
+    for y in range(10):
         for z in x['checks'][-y]:
             params = z.split(";")
             index = products.index(
@@ -125,3 +132,4 @@ print(np.mean(scores))
 #0.033203016505148696
 #0.021833127570705112
 #0.021983666957240824
+#0.10230769231564321
