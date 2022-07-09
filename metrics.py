@@ -1,7 +1,5 @@
 from collections import defaultdict
 
-import modelWork
-import main
 import numpy as np
 
 

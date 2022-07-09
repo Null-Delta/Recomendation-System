@@ -37,7 +37,7 @@ def hello4():
 @app.route('/globalSearch')
 def hello5():
     search = request.args.get('search')
-    return str(main.searchProduct(search))
+    return str(main.searchProducts(search))
 
 @app.route('/merchant')
 def hello6():

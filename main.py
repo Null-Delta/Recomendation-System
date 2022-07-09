@@ -9,14 +9,11 @@ import numpy as np
 from scipy.sparse import csr_matrix
 from implicit.als import AlternatingLeastSquares
 import sys
-import codecs
-from modelWork import loadModel
-from modelWork import saveModel
 
 model = AlternatingLeastSquares(
-    factors=256, 
+    factors=512, 
     regularization=0.1, 
-    iterations = 2000, 
+    iterations =500, 
 )
 
 #model = AlternatingLeastSquares(factors=64, regularization=0.05, iterations = 200, num_threads = 4)
@@ -226,8 +223,8 @@ def merchantProduct(user_id, name):
 def start():
     global users, products, merchants, matrix, data_matrix, model
     users, products, merchants = load_data()
-    # matrix = construct_matrix()
-    # data_matrix = transform_matrix_to_csr_matrix()
+    matrix = construct_matrix()
+    data_matrix = transform_matrix_to_csr_matrix()
 
 
 #with_this_products()
@@ -244,10 +241,10 @@ def start():
 
 #print(similar_items('Вино;899;Пятёрочка'))
 
-start()
-model = modelWork.loadModel("model_0")
+#start()
+#model = modelWork.loadModel("model_0")
 
-print(searchProducts("Пева"))
+#print(searchProducts("Пева"))
 # fp = open('211.txt', 'w')
 # fp.write(merchantProduct(635, "Магнит"))
 # fp.close()

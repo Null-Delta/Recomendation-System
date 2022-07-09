@@ -1,10 +1,10 @@
-import readline
 import main
 import modelWork
 import metrics
 
 
 main.start()
+print(main.model.iterations)
 main.model.fit(2 * main.data_matrix)
 name = "model_" + str(main.model.factors) + "_" + str(main.model.iterations) + "_" + str(int(main.model.regularization * 100))
 
