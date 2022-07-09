@@ -107,10 +107,3 @@ data_matrix = transform_matrix_to_csr_matrix()
 model.fit(2 * data_matrix)
 
 #print(recomend_to_user_with_merchants(2217))
-
-fp = open('1.json', 'w')
-fp.write(recomend_to_user(2217))
-fp.close()
-fp = open('2.json', 'w')
-fp.write(recomend_to_user_with_merchants(2217))
-fp.close()
