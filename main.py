@@ -117,7 +117,11 @@ def similar_users(user):
     tmp = cnt.keys()
     indexTopList = sorted(list(tmp), key = lambda x: -cnt[x])
 
-    return json.dumps(indexTopList[:30])
+    rezult = []
+    for x in indexTopList[:30]:
+        params = x.split(";")
+        rezult.append({"name": params[0],"cost": int(params[1]),"merchantName": params[2]})
+    return json.dumps(rezult)
 
 def recomend_to_user_with_merchants(user_id):
     userIndex = list_func_index(users, lambda us: us["userId"] == user_id)
@@ -189,8 +193,8 @@ def get_connected_products(product):
 def searchProducts(name):
     searched = []
     for x in products:
-        procent = fuzz.token_sort_ratio(name, x["name"])
-        if procent>40:
+        procent = fuzz.WRatio(name, x["name"])
+        if procent>55:
             searched.append((procent,x))
     searched = sorted(searched, key = lambda x: -x[0])
     rezult = []
@@ -230,8 +234,8 @@ def merchantProduct(user_id, name):
 def start():
     global users, products, merchants, matrix, data_matrix, model
     users, products, merchants = load_data()
-    matrix = construct_matrix()
-    data_matrix = transform_matrix_to_csr_matrix()
+    # matrix = construct_matrix()
+    # data_matrix = transform_matrix_to_csr_matrix()
 
 
 #with_this_products()
@@ -254,8 +258,17 @@ def start():
 # fp.write(merchantProduct(635, "Магнит"))
 # fp.close()
 start()
-model = AlternatingLeastSquares(factors=64, regularization=0.05, iterations = 200, num_threads = 4)
-model.fit(2*data_matrix)
+
+print(searchProducts("Стол"))
+print(searchProducts("Пива"))
+print(searchProducts("ОВС"))
+print(searchProducts("Гроб"))
+print(searchProducts("Картоха"))
+print(searchProducts("Сухо"))
+print(searchProducts("С"))
+
+#model = AlternatingLeastSquares(factors=64, regularization=0.05, iterations = 200, num_threads = 4)
+#model.fit(2*data_matrix)
 #get_top_metrics(users, products) 
 #0.046095630991409724
 #get_user2product_metrics(users, products, model, data_matrix) 
