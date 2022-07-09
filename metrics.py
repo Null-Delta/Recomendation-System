@@ -1,5 +1,7 @@
 from collections import defaultdict
 
+import modelWork
+import main
 import numpy as np
 
 
@@ -86,3 +88,10 @@ def get_user2product_metrics(users,products,model,finalMatrix):
 
     print(np.mean(scores))
     #0.10230769231564321
+
+
+main.start()
+main.model = modelWork.loadModel("model_0")
+
+get_top_metrics(main.users, main.products)
+get_user2product_metrics(main.users, main.products, main.model, main.data_matrix)

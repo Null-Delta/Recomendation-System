@@ -25,16 +25,20 @@ data_matrix = csr_matrix((0, 0), dtype=np.int8)
 users = []
 products = []
 merchants = []
+connected_products = []
+
 
 def load_data():
+    global users, products, merchants, connected_products
     sys.path.append("../")
-    from metrics import normalized_average_precision
     with open("data/users.json", "r") as read_file:
-        users: list = json.load(read_file)
+        users = json.load(read_file)
     with open("data/products.json", "r") as read_file:
-        products: list = json.load(read_file)
+        products = json.load(read_file)
     with open("data/merchants.json", "r") as read_file:
-        merchants: list = json.load(read_file)
+        merchants = json.load(read_file)
+    with open("data/1.json", "r") as read_file:
+        connected_products = json.load(read_file)
     return users, products, merchants
 
 def construct_matrix():
@@ -152,9 +156,7 @@ def with_this_products():
                                     "merchantName": params[2]
                                 }
                             )
-                        mapCouple[str(index)] += int(1)
-        #print(mapCouple)
-                    
+                        mapCouple[str(index)] += int(1)                    
         tmp = mapCouple.keys()
         indexTopList = sorted(list(tmp), key = lambda x: -mapCouple[x])
         matrixMapCouple.append(indexTopList[1:30])
@@ -164,12 +166,23 @@ def with_this_products():
     fp.write(json.dumps(matrixMapCouple))
     fp.close()
 
+def get_connected_products(product):
+    productIndex = list_func_index(products, lambda it: (it["name"] + ";" + str(it["cost"]) + ";" + it["merchantName"]) == product)
+    #print(len(connected_products))
+    #print(productIndex)
+    connectedIds = connected_products[productIndex]
     
+    result = []
+    for id in connectedIds:
+        result.append(products[int(id)])
 
-users, products, merchants = load_data()
-matrix = construct_matrix()
-data_matrix = transform_matrix_to_csr_matrix()
-#model.fit(2 * data_matrix)
+    return json.dumps(result)
+
+def start():
+    global users, products, merchants, matrix, data_matrix, model
+    users, products, merchants = load_data()
+    matrix = construct_matrix()
+    data_matrix = transform_matrix_to_csr_matrix()
 
 #with_this_products()
 # fp = open('1.txt', 'w')
@@ -187,6 +200,6 @@ data_matrix = transform_matrix_to_csr_matrix()
 
 #print(recomend_to_user_with_merchants(2217))
 
-print(similar_items('Вино;899;Пятёрочка'))
+#print(similar_items('Вино;899;Пятёрочка'))
 
 

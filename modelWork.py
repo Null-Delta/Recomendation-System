@@ -3,7 +3,7 @@ import numpy as np
 from scipy.sparse import csr_matrix
 from implicit.als import AlternatingLeastSquares
 
-def saveModel(model):
+def saveModel(model, name):
     convertedUF = []
     for x in list(model.user_factors):
         tmp = []
@@ -20,12 +20,12 @@ def saveModel(model):
     'regularization':model.regularization,'iterations':model.iterations,'num_threads':model.num_threads,
     'shapeU0':model.user_factors.shape[0],'shapeU1':model.user_factors.shape[1],
     'shapeI0':model.item_factors.shape[0],'shapeI1':model.item_factors.shape[1],}
-    fp = open('savedModel.txt', 'w')
+    fp = open(name + '.txt', 'w')
     fp.write(json.dumps(mapOfModel))
     fp.close()
 
-def loadModel():
-    fp = open('savedModel.txt', 'r')
+def loadModel(name):
+    fp = open(name + '.txt', 'r')
     mapOfModel = json.load(fp)
     model = AlternatingLeastSquares(factors = mapOfModel['factors'], regularization = mapOfModel['regularization'], iterations = mapOfModel['iterations'], num_threads = mapOfModel['num_threads'])
     
