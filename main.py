@@ -2,6 +2,8 @@ from array import array
 from collections import defaultdict
 from itertools import count
 import json
+from math import prod
+from fuzzywuzzy import fuzz
 
 import numpy as np
 from scipy.sparse import csr_matrix
@@ -187,11 +189,26 @@ def get_connected_products(product):
 
     return json.dumps(result)
 
+def searchProducts(name):
+    searched = []
+    for x in products:
+        if fuzz.token_sort_ratio(name, x["name"])>60:
+            searched.append(x["name"] + ";" + str(x["cost"]) + ";" + x["merchantName"])
+    return searched
+
+def merchantProduct(name):
+    searched = []
+    for x in merchants:
+        if fuzz.token_sort_ratio(name, x["name"])>60:
+            searched.append(x["name"] + ";" + str(x["cost"]) + ";" + x["merchantName"])
+    return searched
+
 def start():
     global users, products, merchants, matrix, data_matrix, model
     users, products, merchants = load_data()
     matrix = construct_matrix()
     data_matrix = transform_matrix_to_csr_matrix()
+
 
 #with_this_products()
 # fp = open('1.txt', 'w')
