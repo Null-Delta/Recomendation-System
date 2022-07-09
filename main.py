@@ -2,7 +2,7 @@ from array import array
 from collections import defaultdict
 from itertools import count
 import json
-from implicit.nearest_neighbours import bm25_weight
+
 import numpy as np
 from scipy.sparse import csr_matrix
 from implicit.als import AlternatingLeastSquares
@@ -125,23 +125,13 @@ def recomend_to_user_with_merchants(user_id):
 def with_this_products():
     matrixMapCouple = []
     for productId in range(len(products)):
+        print(productId)
+        prod = products[productId]
         mapCouple = defaultdict(int)
         for x in users:
+            #print(x["userId"])
             for y in x["checks"]:
-                flag = False
-                for z in y:
-                    params = z.split(";")
-                    index = products.index(
-                            {
-                                "name": params[0],
-                                "cost": int(params[1]),
-                                "merchantName": params[2]
-                            }
-                        )
-                    if (index == productId):
-                        flag = True
-                        break
-                if flag:
+                if len(list(filter(lambda x: x == prod['name'] + ";" + str(prod["cost"]) + ";" + prod["merchantName"], y))) != 0:
                     for z in y:
                         params = z.split(";")
                         index = products.index(
@@ -151,10 +141,12 @@ def with_this_products():
                                     "merchantName": params[2]
                                 }
                             )
-                        mapCouple['index'] += int(1)
+                        mapCouple[str(index)] += int(1)
+        #print(mapCouple)
+                    
         tmp = mapCouple.keys()
         indexTopList = sorted(list(tmp), key = lambda x: -mapCouple[x])
-        matrixMapCouple.append(indexTopList[:30])
+        matrixMapCouple.append(indexTopList[1:30])
 
     #save
     fp = open('1.json', 'w')
