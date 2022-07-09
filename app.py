@@ -10,7 +10,7 @@ if modelName != "_":
     main.model = modelWork.loadModel(modelName)
 else:
     main.model = AlternatingLeastSquares(factors=64, regularization=0.05, iterations = 200, num_threads = 4)
-    main.model.fits(2 * main.data_matrix)
+    main.model.fit(2 * main.data_matrix)
 
 
 app = Flask(__name__)
@@ -43,6 +43,7 @@ def hello5():
 @app.route('/merchant')
 def hello6():
     name = request.args.get('name')
-    return str(main.merchantProduct(name))
+    user = request.args.get('user')
+    return str(main.merchantProduct(user, name))
 
     #Творог;40;Пятёрочка

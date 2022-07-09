@@ -4,12 +4,12 @@ from itertools import count
 import json
 from math import prod
 from fuzzywuzzy import fuzz
-
+import modelWork
 import numpy as np
 from scipy.sparse import csr_matrix
 from implicit.als import AlternatingLeastSquares
 import sys
-
+import codecs
 from modelWork import loadModel
 from modelWork import saveModel
 
@@ -196,12 +196,33 @@ def searchProducts(name):
             searched.append(x["name"] + ";" + str(x["cost"]) + ";" + x["merchantName"])
     return searched
 
-def merchantProduct(name):
-    searched = []
+def merchantProduct(user_id, name):
+    user_id = int(user_id)
+    userIndex = list_func_index(users, lambda us: us["userId"] == user_id)
+    items = data_matrix.tocsr()
+    ids, recScores = model.recommend(user_id, items[userIndex], N=len(products), filter_already_liked_items=False, recalculate_user=True)
+
+    merchantProducts = []
     for x in merchants:
-        if fuzz.token_sort_ratio(name, x["name"])>60:
-            searched.append(x["name"] + ";" + str(x["cost"]) + ";" + x["merchantName"])
-    return searched
+        if name == x["merchantName"]:
+            for y in x["products"]:
+                params = y.split(";")
+                index = products.index(
+                    {
+                        "name": params[0],
+                        "cost": int(params[1]),
+                        "merchantName": params[2]
+                    }
+                )
+                merchantProducts.append(index)
+            break
+
+    recomended_products_in_merchant = []
+    for id in ids:
+        if (id in merchantProducts):
+            recomended_products_in_merchant.append(products[id])
+
+    return json.dumps(recomended_products_in_merchant, ensure_ascii=False)
 
 def start():
     global users, products, merchants, matrix, data_matrix, model
@@ -220,12 +241,15 @@ def start():
 
 # model = loadModel() 
 
-# fp = open('2.txt', 'w')
-# fp.write(json.dumps(recomend_to_user_with_merchants(2217)))
-# fp.close()
 
 #print(recomend_to_user_with_merchants(2217))
 
 #print(similar_items('Вино;899;Пятёрочка'))
 
+start()
+model = modelWork.loadModel("model_0")
 
+
+fp = open('211.txt', 'w')
+fp.write(merchantProduct(635, "Магнит"))
+fp.close()
