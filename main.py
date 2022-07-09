@@ -231,6 +231,21 @@ def merchantProduct(user_id, name):
 
     return json.dumps(recomended_products_in_merchant, ensure_ascii=False)
 
+def updateModel(user, check):
+    userIndex = list_func_index(users, lambda us: us["userId"] == user)
+    items = data_matrix.tocsr()
+    item = items[userIndex]
+    tmpCheck = []
+    for x in check:
+        tmpCheck.append(x["name"] + ";" + str(x["cost"]) + ";" + x["merchantName"])
+    users[userIndex]["checks"].append(tmpCheck)
+    for x in check:
+        index = products.index(x)
+        if index in item.indices:
+            item.data[ np.where(item.indices == index)]+=1
+    
+    model.partial_fit_users([user], items[userIndex])
+
 def start():
     global users, products, merchants, matrix, data_matrix, model
     users, products, merchants = load_data()
@@ -253,7 +268,6 @@ def start():
 #print(similar_items('Вино;899;Пятёрочка'))
 
 #start()
-#model = modelWork.loadModel("model_0")
 # fp = open('211.txt', 'w')
 # fp.write(merchantProduct(635, "Магнит"))
 # fp.close()
@@ -266,7 +280,15 @@ def start():
 # print(searchProducts("Картоха"))
 # print(searchProducts("Сухо"))
 # print(searchProducts("С"))
+start()
 
+model = modelWork.loadModel("model_0")
+get_user2product_metrics(users, products, model, data_matrix) 
+updateModel(635,[{'name':'Хлеб белый', 'cost':30, 'merchantName':'Пятёрочка'}, {'name':'Хлеб белый', 'cost':30, 'merchantName':'Пятёрочка'}])
+get_user2product_metrics(users, products, model, data_matrix) 
+
+# print(similar_items("Говядина;1399;Пятёрочка"))
+# print(similar_users(635))
 #model = AlternatingLeastSquares(factors=64, regularization=0.05, iterations = 200, num_threads = 4)
 #model.fit(2*data_matrix)
 #get_top_metrics(users, products) 

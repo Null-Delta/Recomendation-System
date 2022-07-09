@@ -45,4 +45,9 @@ def hello6():
     user = request.args.get('user')
     return str(main.merchantProduct(user, name))
 
+@app.route('/makedPurchase')
+def hello7():
+    user = request.args.get('user')
+    check = request.args.get('check')
+    return str(main.updateModel(user, check))
     #Творог;40;Пятёрочка
