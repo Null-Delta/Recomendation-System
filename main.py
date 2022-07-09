@@ -99,6 +99,17 @@ def similar_items(item):
 
     return json.dumps(similar_products)
 
+def similar_users(user):
+    userIndex = list_func_index(users, lambda it: it["userId"] == user)
+    ids, recScores = model.similar_users(userIndex, N=30)
+
+    similar_products = []
+
+    for id in ids:
+        similar_products.append(products[id])
+
+    return json.dumps(similar_products)
+
 def recomend_to_user_with_merchants(user_id):
     userIndex = list_func_index(users, lambda us: us["userId"] == user_id)
     items = data_matrix.tocsr()
@@ -160,7 +171,7 @@ matrix = construct_matrix()
 data_matrix = transform_matrix_to_csr_matrix()
 #model.fit(2 * data_matrix)
 
-with_this_products()
+#with_this_products()
 # fp = open('1.txt', 'w')
 # fp.write(json.dumps(recomend_to_user_with_merchants(2217)))
 # fp.close()
@@ -175,3 +186,7 @@ with_this_products()
 # fp.close()
 
 #print(recomend_to_user_with_merchants(2217))
+
+print(similar_items('Вино;899;Пятёрочка'))
+
+
