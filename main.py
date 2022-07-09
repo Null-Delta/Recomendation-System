@@ -233,14 +233,13 @@ def start():
 
 #with_this_products()
 # fp = open('1.txt', 'w')
-# fp.write(json.dumps(recomend_to_user_with_merchants(2217)))
+# fp.write(json.dumps(ensure_ascii=False, recomend_to_user_with_merchants(2217)))
 # fp.close()
 
 # saveModel(model)
 # model = None
 
 # model = loadModel() 
-
 
 #print(recomend_to_user_with_merchants(2217))
 
