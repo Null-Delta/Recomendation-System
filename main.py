@@ -151,13 +151,15 @@ def with_this_products():
                                     "merchantName": params[2]
                                 }
                             )
-                        mapCouple['index'] += 1
+                        mapCouple['index'] += int(1)
         tmp = mapCouple.keys()
         indexTopList = sorted(list(tmp), key = lambda x: -mapCouple[x])
         matrixMapCouple.append(indexTopList[:30])
 
     #save
-    print(1)
+    fp = open('1.json', 'w')
+    fp.write(json.dumps(matrixMapCouple))
+    fp.close()
 
     
 
