@@ -104,15 +104,24 @@ def similar_items(item):
     return json.dumps(similar_products)
 
 def similar_users(user):
+    user = int(user)
     userIndex = list_func_index(users, lambda it: it["userId"] == user)
     ids, recScores = model.similar_users(userIndex, N=30)
 
-    similar_products = []
+    similar_users = []
 
     for id in ids:
-        similar_products.append(products[id])
+        similar_users.append(users[id])
 
-    return json.dumps(similar_products)
+    cnt = defaultdict(int)
+    for x in similar_users:
+        for y in x["checks"]:
+            for z in y:
+                cnt[z] +=1
+    tmp = cnt.keys()
+    indexTopList = sorted(list(tmp), key = lambda x: -cnt[x])
+
+    return json.dumps(indexTopList[:30])
 
 def recomend_to_user_with_merchants(user_id):
     userIndex = list_func_index(users, lambda us: us["userId"] == user_id)
