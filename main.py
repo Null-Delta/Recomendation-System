@@ -2,6 +2,7 @@ from array import array
 from collections import defaultdict
 from itertools import count
 import json
+from implicit.nearest_neighbours import bm25_weight
 import numpy as np
 from scipy.sparse import csr_matrix
 from implicit.als import AlternatingLeastSquares
@@ -53,11 +54,9 @@ for col in range (0,len(users)):
 finalMatrix = csr_matrix((data, (columns, rows)), shape=(len(users), len(products)))
 #print(finalMatrix)
 
-model = AlternatingLeastSquares(factors=16, regularization=0.05)
-model.fit(2 * finalMatrix)
-
-userid = 0
-ids, scores = model.recommend(userid, finalMatrix[userid], N=10, filter_already_liked_items=False)
+#finalMatrix = bm25_weight(finalMatrix, K1=100, B=0.8)
+model = AlternatingLeastSquares(factors=64, regularization=0.05)
+model.fit(finalMatrix)
 
 #print(finalMatrix[userid])
 #print(ids)
@@ -83,8 +82,30 @@ for x in indexTopList:
     #text += str(x)+" "+str(cnt[x])+" "+products[x]['name']+"\n"
     nameTopList.append(products[x]['name'])
 
+#top-30
+# scores = []
+# for x in users:
+#     testing = []
+#     for y in range(3):
+#         for z in x['checks'][-y]:
+#             params = z.split(";")
+#             index = products.index(
+#                 {
+#                     "name": params[0],
+#                     "cost": int(params[1]),
+#                     "merchantName": params[2]
+#                 }
+#             )
+#             testing.append(index)
+#     metr = normalized_average_precision(testing, indexTopList[:30])
+#     scores.append(metr)
+# print(np.mean(scores))
+#0.04157494615140849
+
+#recomended
 scores = []
 for x in users:
+    ids, recScores = model.recommend(x['userId'], finalMatrix[x['userId']], N=30, filter_already_liked_items=False)
     testing = []
     for y in range(3):
         for z in x['checks'][-y]:
@@ -97,9 +118,10 @@ for x in users:
                 }
             )
             testing.append(index)
-    print(len(testing))
-    metr = normalized_average_precision(testing, indexTopList[:30])
+    metr = normalized_average_precision(testing, ids)
     scores.append(metr)
 
 print(np.mean(scores))
-#0.04157494615140849
+#0.033203016505148696
+#0.021833127570705112
+#0.021983666957240824
