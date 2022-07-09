@@ -12,7 +12,6 @@ app = Flask(__name__)
 
 @app.route('/recomend')
 def hello():
-    #print(main.recomend_to_user(2217)[0])
     return str(main.recomend_to_user(2217))
 
 @app.route('/similar')

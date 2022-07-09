@@ -19,7 +19,7 @@ def normalized_average_precision(actual, recommended, k=30):
     actual = set(actual)
     if len(actual) == 0:
         return 0.0
-
+    
     ap = average_precision(actual, recommended, k=k)
     ap_ideal = average_precision(actual, list(actual)[:k], k=k)
     return ap / ap_ideal
@@ -90,8 +90,4 @@ def get_user2product_metrics(users,products,model,finalMatrix):
     #0.10230769231564321
 
 
-main.start()
-main.model = modelWork.loadModel("model_0")
-
-get_top_metrics(main.users, main.products)
-get_user2product_metrics(main.users, main.products, main.model, main.data_matrix)
+# 

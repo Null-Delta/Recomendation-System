@@ -12,11 +12,9 @@ from modelWork import loadModel
 from modelWork import saveModel
 
 model = AlternatingLeastSquares(
-    factors=128, 
-    regularization=0.05, 
-    iterations = 400, 
-    num_threads = 0, 
-    use_gpu = False
+    factors=256, 
+    regularization=0.1, 
+    iterations = 2000, 
 )
 
 #model = AlternatingLeastSquares(factors=64, regularization=0.05, iterations = 200, num_threads = 4)
@@ -26,7 +24,6 @@ users = []
 products = []
 merchants = []
 connected_products = []
-
 
 def load_data():
     global users, products, merchants, connected_products
