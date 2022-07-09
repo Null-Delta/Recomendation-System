@@ -8,7 +8,6 @@ def average_precision(actual, recommended, k=30):
             ap_sum += hits / (i + 1)
     return ap_sum / k
 
-
 def normalized_average_precision(actual, recommended, k=30):
     actual = set(actual)
     if len(actual) == 0:
