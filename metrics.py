@@ -119,7 +119,7 @@ def get_user2user_metrics(users,products,model):
                     cnt[index] +=1
         tmp = cnt.keys()
         indexTopList = sorted(list(tmp), key = lambda x: -cnt[x])
-
+        indexTopList = indexTopList[:30]
 
         testing = []
         for y in range(10):

@@ -17,7 +17,8 @@ app = Flask(__name__)
 
 @app.route('/recomend')
 def hello():
-    return str(main.recomend_to_user(2217))
+    user_id = request.args.get('user')
+    return str(main.recomend_to_user(int(user_id)))
 
 @app.route('/similar_items')
 def hello2():
