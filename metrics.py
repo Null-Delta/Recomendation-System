@@ -91,7 +91,7 @@ def get_user2product_metrics(users,products,model,finalMatrix):
 
 
 main.start()
-main.model = modelWork.loadModel("model_1")
+main.model = modelWork.loadModel("model_2")
 
 get_top_metrics(main.users, main.products)
 get_user2product_metrics(main.users, main.products, main.model, main.data_matrix)
