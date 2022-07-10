@@ -6,7 +6,7 @@ from fuzzywuzzy import fuzz
 from metrics import get_top_metrics, get_user2product_metrics, get_user2user_metrics
 import modelWork
 import numpy as np
-from scipy.sparse import csr_matrix
+from scipy.sparse import csr_matrix, lil_matrix
 from implicit.als import AlternatingLeastSquares
 import sys
 
@@ -27,10 +27,10 @@ connected_products = []
 def load_data():
     global users, products, merchants, connected_products
     sys.path.append("../")
-    with open("data/users.json", "r") as read_file:
-        users = json.load(read_file)
     with open("data/products.json", "r") as read_file:
         products = json.load(read_file)
+    with open("data/users.json", "r") as read_file:
+        users = json.load(read_file)
     with open("data/merchants.json", "r") as read_file:
         merchants = json.load(read_file)
     with open("data/1.json", "r") as read_file:
@@ -79,14 +79,14 @@ def list_func_index(lst, func):
 def recomend_to_user(user_id):
     userIndex = list_func_index(users, lambda us: us["userId"] == user_id)
     items = data_matrix.tocsr()
-    ids, recScores = model.recommend(user_id, items[userIndex], N=30, filter_already_liked_items=False, recalculate_user=True)
+    ids, recScores = model.recommend(user_id, items[userIndex], N=8, filter_already_liked_items=False, recalculate_user=True)
 
     recomended_products = []
 
     for id in ids:
         recomended_products.append(products[id])
 
-    return json.dumps(recomended_products)
+    return json.dumps(recomended_products, ensure_ascii=False )
 
 def similar_items(item):
     itemIndex = list_func_index(products, lambda it: (it["name"] + ";" + str(it["cost"]) + ";" + it["merchantName"]) == item)
@@ -97,7 +97,7 @@ def similar_items(item):
     for id in ids:
         similar_products.append(products[id])
 
-    return json.dumps(similar_products)
+    return json.dumps(similar_products[1:])
 
 def similar_users(user):
     user = int(user)
@@ -188,7 +188,7 @@ def get_connected_products(product):
     for id in connectedIds:
         result.append(products[int(id)])
 
-    return json.dumps(result)
+    return json.dumps(result[1:], ensure_ascii=False )
 
 def searchProducts(name):
     searched = []
@@ -232,6 +232,7 @@ def merchantProduct(user_id, name):
     return json.dumps(recomended_products_in_merchant, ensure_ascii=False)
 
 def updateModel(user, check):
+    global data_matrix
     userIndex = list_func_index(users, lambda us: us["userId"] == user)
     items = data_matrix.tocsr()
     item = items[userIndex]
@@ -242,9 +243,59 @@ def updateModel(user, check):
     for x in check:
         index = products.index(x)
         if index in item.indices:
-            item.data[ np.where(item.indices == index)]+=1
+            if (item.data[ np.where(item.indices == index)] < 10):
+                item.data[ np.where(item.indices == index)]+=3
+            else:
+                item.data[ np.where(item.indices == index)]+=1
+        else:
+            array = item.toarray()
+            array[0][index] = 5
+            item = csr_matrix(array)
     
-    model.partial_fit_users([user], items[userIndex])
+    model.partial_fit_users([user], item)
+    items = lil_matrix(items)
+    items[userIndex] = item
+    data_matrix = csr_matrix(items)
+
+def top_merchantProduct(name):
+    cnt = defaultdict(int)
+    for x in users:
+        for y in x["checks"]:
+            for z in y:
+                params = z.split(";")
+                if (name == params[2]):
+                    index = products.index(
+                        {
+                            "name": params[0],
+                            "cost": int(params[1]),
+                            "merchantName": params[2]
+                        }
+                    )
+                    cnt[index]+=1
+
+    indexTopList = sorted(list(cnt.keys()), key = lambda x: -cnt[x])
+    rezult = []
+    for x in indexTopList[:30]:
+        rezult.append(products[x])
+    return json.dumps(rezult, ensure_ascii=False)
+
+def search_merchantProducts(name, merchantName):
+    searched = []
+    for x in merchants:
+        if (x["merchantName"] == merchantName):
+            for y in x["products"]:
+                params = y.split(";")
+                procent = fuzz.WRatio(name, params[0])
+                if procent>55:
+                    params = {"name":params[0], "cost":params[1], "merchantName": params[2]}
+                    searched.append((procent,params))
+            break
+    searched = sorted(searched, key = lambda x: -x[0])
+    rezult = []
+    for x in searched:
+        rezult.append(x[1])
+    
+    return json.dumps(rezult, ensure_ascii=False)
 
 def start():
     global users, products, merchants, matrix, data_matrix, model
@@ -258,11 +309,6 @@ def start():
 # fp.write(json.dumps(ensure_ascii=False, recomend_to_user_with_merchants(2217)))
 # fp.close()
 
-# saveModel(model)
-# model = None
-
-# model = loadModel() 
-
 #print(recomend_to_user_with_merchants(2217))
 
 #print(similar_items('Вино;899;Пятёрочка'))
@@ -274,19 +320,14 @@ def start():
 # start()
 
 # print(searchProducts("Стол"))
-# print(searchProducts("Пива"))
-# print(searchProducts("ОВС"))
-# print(searchProducts("Гроб"))
-# print(searchProducts("Картоха"))
-# print(searchProducts("Сухо"))
-# print(searchProducts("С"))
 start()
 
 model = modelWork.loadModel("model_0")
-get_user2product_metrics(users, products, model, data_matrix) 
-updateModel(635,[{'name':'Хлеб белый', 'cost':30, 'merchantName':'Пятёрочка'}, {'name':'Хлеб белый', 'cost':30, 'merchantName':'Пятёрочка'}])
-get_user2product_metrics(users, products, model, data_matrix) 
-
+print(get_connected_products("Пиво;100;Магнит"))
+# print(recomend_to_user(6661))
+# updateModel(6661,[{"name": "Влажный корм для взрослых кошек", "cost": 26, "merchantName": "PetShop.ru"}, {"name": "Поилка-фонтан", "cost": 3280, "merchantName": "PetShop.ru"}, 
+# {"name": "Когтеточка", "cost": 800, "merchantName": "PetShop.ru"},{"name": "Кусочки в соусе для кошек", "cost": 63, "merchantName": "PetShop.ru"} ])
+# print(recomend_to_user(6661))
 # print(similar_items("Говядина;1399;Пятёрочка"))
 # print(similar_users(635))
 #model = AlternatingLeastSquares(factors=64, regularization=0.05, iterations = 200, num_threads = 4)

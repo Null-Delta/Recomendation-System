@@ -50,4 +50,15 @@ def hello7():
     user = request.args.get('user')
     check = request.args.get('check')
     return str(main.updateModel(user, check))
+
+@app.route('/top_merchant')
+def hello8():
+    name = request.args.get('name')
+    return str(main.top_merchantProduct(name))
+
+@app.route('/search_merchantProducts')
+def hello9():
+    name = request.args.get('name')
+    merchantName = request.args.get('merchantName')
+    return str(main.search_merchantProducts(name, merchantName))
     #Творог;40;Пятёрочка
