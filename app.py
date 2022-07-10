@@ -62,3 +62,8 @@ def hello9():
     merchantName = request.args.get('merchantName')
     return str(main.search_merchantProducts(name, merchantName))
     #Творог;40;Пятёрочка
+
+@app.route('/click_product')
+def hello10():
+    product = request.args.get('product')
+    return str(main.on_click_product(product))

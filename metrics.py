@@ -48,16 +48,17 @@ def get_top_metrics(users, products):
     for x in users:
         testing = []
         for y in range(10):
-            for z in x['checks'][-y]:
-                params = z.split(";")
-                index = products.index(
-                    {
-                        "name": params[0],
-                        "cost": int(params[1]),
-                        "merchantName": params[2]
-                    }
-                )
-                testing.append(index)
+            if (len(x['checks']) > 12):
+                for z in x['checks'][-y-1]:
+                    params = z.split(";")
+                    index = products.index(
+                        {
+                            "name": params[0],
+                            "cost": int(params[1]),
+                            "merchantName": params[2]
+                        }
+                    )
+                    testing.append(index)
         metr = normalized_average_precision(testing, indexTopList[:30])
         scores.append(metr)
     print(np.mean(scores))
@@ -75,16 +76,17 @@ def get_user2product_metrics(users,products,model,finalMatrix):
         ids, recScores = model.recommend(x['userId'], items[userIndex], N=30, filter_already_liked_items=False, recalculate_user=True)
         testing = []
         for y in range(10):
-            for z in x['checks'][-y]:
-                params = z.split(";")
-                index = products.index(
-                    {
-                        "name": params[0],
-                        "cost": int(params[1]),
-                        "merchantName": params[2]
-                    }
-                )
-                testing.append(index)
+            if (len(x['checks']) > 12):
+                for z in x['checks'][-y-1]:
+                    params = z.split(";")
+                    index = products.index(
+                        {
+                            "name": params[0],
+                            "cost": int(params[1]),
+                            "merchantName": params[2]
+                        }
+                    )
+                    testing.append(index)
         metr = normalized_average_precision(testing, ids)
         scores.append(metr)
 
@@ -121,16 +123,17 @@ def get_user2user_metrics(users,products,model):
 
         testing = []
         for y in range(10):
-            for z in x['checks'][-y]:
-                params = z.split(";")
-                index = products.index(
-                    {
-                        "name": params[0],
-                        "cost": int(params[1]),
-                        "merchantName": params[2]
-                    }
-                )
-                testing.append(index)
+            if (len(x['checks']) > 12):
+                for z in x['checks'][-y-1]:
+                    params = z.split(";")
+                    index = products.index(
+                        {
+                            "name": params[0],
+                            "cost": int(params[1]),
+                            "merchantName": params[2]
+                        }
+                    )
+                    testing.append(index)
         metr = normalized_average_precision(testing, indexTopList)
         scores.append(metr)
 

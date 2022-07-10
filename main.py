@@ -10,13 +10,13 @@ from scipy.sparse import csr_matrix, lil_matrix
 from implicit.als import AlternatingLeastSquares
 import sys
 
-model = AlternatingLeastSquares(
-    factors=512, 
-    regularization=0.1, 
-    iterations =500, 
-)
+# model = AlternatingLeastSquares(
+#     factors=512, 
+#     regularization=0.1, 
+#     iterations =500, 
+# )
 
-#model = AlternatingLeastSquares(factors=64, regularization=0.05, iterations = 200, num_threads = 4)
+model = AlternatingLeastSquares(factors=64, regularization=0.05, iterations = 200, num_threads = 4)
 
 data_matrix = csr_matrix((0, 0), dtype=np.int8)
 users = []
@@ -44,7 +44,7 @@ def construct_matrix():
         for subIndex in range(0,len(products)):
             matrix[index].append(0)
     for userIndex in range(0, len(users)):
-        for checkIndex in range(0, len(users[userIndex]["checks"])-10):
+        for checkIndex in range(0, len(users[userIndex]["checks"])):
             for productIndex in range(0, len(users[userIndex]["checks"][checkIndex])):
                 params = users[userIndex]["checks"][checkIndex][productIndex].split(";")
                 index = products.index(
@@ -236,10 +236,9 @@ def updateModel(user, check):
     userIndex = list_func_index(users, lambda us: us["userId"] == user)
     items = data_matrix.tocsr()
     item = items[userIndex]
-    tmpCheck = []
-    for x in check:
-        tmpCheck.append(x["name"] + ";" + str(x["cost"]) + ";" + x["merchantName"])
-    users[userIndex]["checks"].append(tmpCheck)
+
+    check = json.loads(check)
+    users[userIndex]["checks"].append(check)
     for x in check:
         index = products.index(x)
         if index in item.indices:
@@ -297,6 +296,27 @@ def search_merchantProducts(name, merchantName):
     
     return json.dumps(rezult, ensure_ascii=False)
 
+def on_click_product(user, product):
+    global data_matrix
+    userIndex = list_func_index(users, lambda us: us["userId"] == user)
+    items = data_matrix.tocsr()
+    item = items[userIndex]
+    
+    product = json.loads(product)
+    index = products.index(product)
+    if index in item.indices:
+        item.data[ np.where(item.indices == index)]+=1
+
+    else:
+        array = item.toarray()
+        array[0][index] = 2
+        item = csr_matrix(array)
+    
+    model.partial_fit_users([user], item)
+    items = lil_matrix(items)
+    items[userIndex] = item
+    data_matrix = csr_matrix(items)
+
 def start():
     global users, products, merchants, matrix, data_matrix, model
     users, products, merchants = load_data()
@@ -323,10 +343,10 @@ def start():
 start()
 
 model = modelWork.loadModel("model_0")
-print(get_connected_products("Пиво;100;Магнит"))
+# print(get_connected_products("Пиво;100;Магнит"))
 # print(recomend_to_user(6661))
-# updateModel(6661,[{"name": "Влажный корм для взрослых кошек", "cost": 26, "merchantName": "PetShop.ru"}, {"name": "Поилка-фонтан", "cost": 3280, "merchantName": "PetShop.ru"}, 
-# {"name": "Когтеточка", "cost": 800, "merchantName": "PetShop.ru"},{"name": "Кусочки в соусе для кошек", "cost": 63, "merchantName": "PetShop.ru"} ])
+updateModel(6661,json.dumps([{"name": "Влажный корм для взрослых кошек", "cost": 26, "merchantName": "PetShop.ru"}, {"name": "Поилка-фонтан", "cost": 3280, "merchantName": "PetShop.ru"}, 
+{"name": "Когтеточка", "cost": 800, "merchantName": "PetShop.ru"},{"name": "Кусочки в соусе для кошек", "cost": 63, "merchantName": "PetShop.ru"} ]))
 # print(recomend_to_user(6661))
 # print(similar_items("Говядина;1399;Пятёрочка"))
 # print(similar_users(635))
