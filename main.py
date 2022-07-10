@@ -54,7 +54,7 @@ def construct_matrix():
                         "merchantName": params[2]
                     }
                 )
-                if index != -1:
+                if index != -1 :
                     matrix[userIndex][index] += 1
     return matrix
 
@@ -340,13 +340,13 @@ def start():
 # start()
 
 # print(searchProducts("Стол"))
-start()
+# start()
 
-model = modelWork.loadModel("model_0")
-# print(get_connected_products("Пиво;100;Магнит"))
-# print(recomend_to_user(6661))
-updateModel(6661,json.dumps([{"name": "Влажный корм для взрослых кошек", "cost": 26, "merchantName": "PetShop.ru"}, {"name": "Поилка-фонтан", "cost": 3280, "merchantName": "PetShop.ru"}, 
-{"name": "Когтеточка", "cost": 800, "merchantName": "PetShop.ru"},{"name": "Кусочки в соусе для кошек", "cost": 63, "merchantName": "PetShop.ru"} ]))
+# model = modelWork.loadModel("model_0")
+# # print(get_connected_products("Пиво;100;Магнит"))
+# # print(recomend_to_user(6661))
+# updateModel(6661,json.dumps([{"name": "Влажный корм для взрослых кошек", "cost": 26, "merchantName": "PetShop.ru"}, {"name": "Поилка-фонтан", "cost": 3280, "merchantName": "PetShop.ru"}, 
+# {"name": "Когтеточка", "cost": 800, "merchantName": "PetShop.ru"},{"name": "Кусочки в соусе для кошек", "cost": 63, "merchantName": "PetShop.ru"} ]))
 # print(recomend_to_user(6661))
 # print(similar_items("Говядина;1399;Пятёрочка"))
 # print(similar_users(635))
