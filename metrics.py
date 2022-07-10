@@ -45,7 +45,7 @@ def get_top_metrics(users, products):
     for x in users:
         testing = []
         for y in range(10):
-            for z in x['checks'][-y]:
+            for z in x['checks'][-y-1]:
                 params = z.split(";")
                 index = products.index(
                     {
@@ -73,7 +73,7 @@ def get_user2product_metrics(users,products,model,finalMatrix):
         ids, recScores = model.recommend(x['userId'], items[userIndex], N=30, filter_already_liked_items=False, recalculate_user=True)
         testing = []
         for y in range(10):
-            for z in x['checks'][-y]:
+            for z in x['checks'][-y-1]:
                 params = z.split(";")
                 index = products.index(
                     {
@@ -91,7 +91,7 @@ def get_user2product_metrics(users,products,model,finalMatrix):
 
 
 main.start()
-main.model = modelWork.loadModel("model_0")
+main.model = modelWork.loadModel("model_1")
 
 get_top_metrics(main.users, main.products)
 get_user2product_metrics(main.users, main.products, main.model, main.data_matrix)
