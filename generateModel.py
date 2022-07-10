@@ -7,9 +7,9 @@ from implicit.als import AlternatingLeastSquares
 main.start()
 
 # main. model = AlternatingLeastSquares(
-#    factors=128, 
+#    factors=512, 
 #    regularization=0.1, 
-#    iterations =800, 
+#    iterations =500, 
 # )
 
 # main.model.fit(2 * main.data_matrix)
@@ -18,8 +18,8 @@ main.start()
 # modelWork.saveModel(main.model, name)
 
 
-main.model = modelWork.loadModel("model_128_800_10")
+main.model = modelWork.loadModel("model_512_500_10")
 
 metrics.get_top_metrics(main.users, main.products)
 metrics.get_user2product_metrics(main.users, main.products, main.model, main.data_matrix)
-metrics.get_user2user_metrics(main.users, main.products, main.model)
+# metrics.get_user2user_metrics(main.users, main.products, main.model)
