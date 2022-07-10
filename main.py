@@ -54,7 +54,7 @@ def construct_matrix():
                         "merchantName": params[2]
                     }
                 )
-                if index != -1 :
+                if index != -1 : # при обучении добавлять: and userIndex < len(users)//2
                     matrix[userIndex][index] += 1
     return matrix
 
