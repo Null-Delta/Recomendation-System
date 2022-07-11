@@ -10,11 +10,7 @@ from scipy.sparse import csr_matrix, lil_matrix
 from implicit.als import AlternatingLeastSquares
 import sys
 
-# model = AlternatingLeastSquares(
-#     factors=512, 
-#     regularization=0.1, 
-#     iterations =500, 
-# )
+# Функции для работы с моделью
 
 model = AlternatingLeastSquares(factors=64, regularization=0.05, iterations = 200, num_threads = 4)
 
@@ -27,13 +23,13 @@ connected_products = []
 def load_data():
     global users, products, merchants, connected_products
     sys.path.append("../")
-    with open("data/products.json", "r") as read_file:
+    with open("data/products.json", "r", encoding='latin-1') as read_file:
         products = json.load(read_file)
-    with open("data/users.json", "r") as read_file:
+    with open("data/users.json", "r", encoding='latin-1') as read_file:
         users = json.load(read_file)
-    with open("data/merchants.json", "r") as read_file:
+    with open("data/merchants.json", "r", encoding='latin-1') as read_file:
         merchants = json.load(read_file)
-    with open("data/1.json", "r") as read_file:
+    with open("data/1.json", "r", encoding='latin-1') as read_file:
         connected_products = json.load(read_file)
     return users, products, merchants
 
@@ -322,39 +318,3 @@ def start():
     users, products, merchants = load_data()
     matrix = construct_matrix()
     data_matrix = transform_matrix_to_csr_matrix()
-
-
-#with_this_products()
-# fp = open('1.txt', 'w')
-# fp.write(json.dumps(ensure_ascii=False, recomend_to_user_with_merchants(2217)))
-# fp.close()
-
-#print(recomend_to_user_with_merchants(2217))
-
-#print(similar_items('Вино;899;Пятёрочка'))
-
-#start()
-# fp = open('211.txt', 'w')
-# fp.write(merchantProduct(635, "Магнит"))
-# fp.close()
-# start()
-
-# print(searchProducts("Стол"))
-# start()
-
-# model = modelWork.loadModel("model_0")
-# # print(get_connected_products("Пиво;100;Магнит"))
-# # print(recomend_to_user(6661))
-# updateModel(6661,json.dumps([{"name": "Влажный корм для взрослых кошек", "cost": 26, "merchantName": "PetShop.ru"}, {"name": "Поилка-фонтан", "cost": 3280, "merchantName": "PetShop.ru"}, 
-# {"name": "Когтеточка", "cost": 800, "merchantName": "PetShop.ru"},{"name": "Кусочки в соусе для кошек", "cost": 63, "merchantName": "PetShop.ru"} ]))
-# print(recomend_to_user(6661))
-# print(similar_items("Говядина;1399;Пятёрочка"))
-# print(similar_users(635))
-#model = AlternatingLeastSquares(factors=64, regularization=0.05, iterations = 200, num_threads = 4)
-#model.fit(2*data_matrix)
-#get_top_metrics(users, products) 
-#0.046095630991409724
-#get_user2product_metrics(users, products, model, data_matrix) 
-#0.061565854045994295
-#get_user2user_metrics(users, products, model)
-#0.07238609012584461
